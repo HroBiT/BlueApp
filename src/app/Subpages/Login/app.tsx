@@ -1,23 +1,22 @@
-"use client";
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../../Components/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../Components/firebase';
 
-function Login() {
+const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (error) {
       setError("Nie udało się zalogować");
+      console.log(`Login error: ${error}`);
     }
   };
 
@@ -62,11 +61,11 @@ function Login() {
           </button>
         </form>
         <p className="text-center text-gray-600 mt-6">
-          Don't have an account? <Link to="./register" className="text-blue-600 hover:underline">Sign up</Link>
+          Don&apos;t have an account? <Link to="/register" className="text-blue-600 hover:underline">Sign up</Link>
         </p>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

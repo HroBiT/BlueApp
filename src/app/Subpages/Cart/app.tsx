@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { auth, db } from '../../Components/firebase';
+import Image from 'next/image';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 interface CartItem {
@@ -70,7 +71,7 @@ const Cart: React.FC = () => {
             <ul className="list-none p-0">
               {cartItems.map((item, index) => (
                 <li className="border border-black rounded-xl p-3 m-2 flex items-center" key={index}>
-                  <img src={item.Image} alt={item.Nazwa} className="w-16 h-16 object-cover mr-4" />
+                  <Image src="/kobieta.jpg" alt="alt" width={500} height={200} className="w-full h-32 object-cover" />
                   <div className="flex-grow">
                     <h2 className="text-lg font-semibold">{item.Nazwa}</h2>
                     <p>{item.Cena} PLN</p>

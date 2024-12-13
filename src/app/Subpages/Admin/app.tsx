@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { auth, db, storage } from '../../Components/firebase';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { collection, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { db } from '../../Components/firebase';
 
 interface Product {
   id?: string;
@@ -10,29 +11,18 @@ interface Product {
   Image: string;
 }
 
-const Admin: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+interface AdminProps {
+  initialProducts: Product[];
+}
+
+const Admin: React.FC<AdminProps> = ({ initialProducts }) => {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [newProduct, setNewProduct] = useState<Product>({
     Nazwa: '',
     Cena: 0,
     Specyfikacja: '',
     Image: 'kobieta.jpg',
   });
-  const user = auth.currentUser;
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const productsRef = collection(db, 'cards');
-      const productsSnapshot = await getDocs(productsRef);
-      const productsList = productsSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return { id: doc.id, ...data } as Product;
-      });
-      setProducts(productsList);
-    };
-
-    fetchProducts();
-  }, []);
 
   const addProduct = async () => {
     try {
@@ -90,7 +80,7 @@ const Admin: React.FC = () => {
               <h2 className="text-xl font-semibold">{product.Nazwa}</h2>
               <p>{product.Cena} PLN</p>
               <p>{product.Specyfikacja}</p>
-              <img src={product.Image} alt={product.Nazwa} className="w-20 h-20 object-cover" />
+              <Image src={product.Image} alt={product.Nazwa} width={80} height={80} className="w-20 h-20 object-cover" />
             </div>
             <button className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-700" onClick={() => removeProduct(product.id!)}>Remove</button>
           </li>
@@ -99,5 +89,19 @@ const Admin: React.FC = () => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  const productsRef = collection(db, 'cards');
+  const productsSnapshot = await getDocs(productsRef);
+  const initialProducts = productsSnapshot.docs.map((doc) => {
+    const data = doc.data();
+    return { id: doc.id, ...data } as Product;
+  });
+
+  return {
+    props: { initialProducts },
+    revalidate: 60,
+  };
+}
 
 export default Admin;

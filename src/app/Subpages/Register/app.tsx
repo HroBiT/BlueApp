@@ -1,37 +1,31 @@
-"use client";
-
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { auth, db } from '../../Components/firebase';
+import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { auth } from '../../Components/firebase';
 
-function Register() {
+const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error1, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      await setDoc(doc(db, 'users', user.uid), {
-        email: user.email,
-        admin: false
-      });
-
+      await createUserWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (error) {
-      console.error("Error registering:", error);
-      setError("Error registering: " + (error as any).message);
+      setError("Nie udało się zarejestrować" + error);
     }
   };
 
+  // Use the error variable in a way that it is not visible on the page
+  if (error1) {
+    console.log(`Register error: ${error1}`);
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r bg-gray-300">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-300 to-gray-500">
       <div className="p-8 bg-white rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">Create an Account</h2>
         <p className="text-center text-gray-600 mb-6">Sign up to get started</p>
@@ -58,9 +52,9 @@ function Register() {
               required
             />
           </div>
-          {error && (
-            <div className="mb-4 text-red-600 text-center">
-              {error}
+          {error1 && (
+            <div className="bg-gray-300 mb-4 text-red-600 text-center">
+              {error1}
             </div>
           )}
           <button
@@ -76,6 +70,6 @@ function Register() {
       </div>
     </div>
   );
-}
+};
 
 export default Register;
