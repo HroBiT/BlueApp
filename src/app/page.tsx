@@ -1,61 +1,31 @@
-"use client";
+import Card from "./Components/Card";
+import { prisma } from "@/utils/client-prisma";
 
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { auth, db } from './Components/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import Home from './Subpages/Home/app';
-import Login from './Subpages/Login/app';
-import Register from './Subpages/Register/app';
-import Cart from './Subpages/Cart/app';
-import Admin from './Subpages/Admin/app';
-import Navbar from './Components/NavBar/app';
-
-const App: React.FC = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState(auth.currentUser);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const unsubscribe = auth.onAuthStateChanged(async (user) => {
-        setUser(user);
-        if (user) {
-          const userRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userRef);
-          if (userDoc.exists() && userDoc.data().admin === true) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-          }
-        } else {
-          setIsAdmin(false);
-        }
-      });
-
-      return () => unsubscribe();
-    }
-  }, []);
-
-  if (user) {
-    console.log(`User is logged in: ${user.email}`);
-  }
+const Home = async () => {
+  const cards = await prisma.card.findMany();
+  // const cardsCollection = collection(db, 'cards');
+  // const cardsSnapshot = await getDocs(cardsCollection);
+  // const cardsList = cardsSnapshot.docs.map(doc => doc.data() as CardData);
 
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/cart" element={<Cart />} />
-        {isAdmin ? (
-          <Route path="/admin" element={<Admin initialProducts={[]} />} />
-        ) : (
-          <Route path="/admin" element={<Navigate to="/" />} />
-        )}
-      </Routes>
-    </Router>
+    <div className="min-h-screen bg-gray-100 flex justify-center">
+      <div className="w-full max-w-6xl p-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {cards.map((card, index) => (
+            <Card
+              key={index}
+              Nazwa={card.name}
+              Cena={card.price}
+              Specyfikacja={card.specification}
+              Image={card.image}
+              // addToCart={addToCart}
+              // goToDetails={() => goToDetails(card)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default App;
+export default Home;
